@@ -28,8 +28,8 @@ const spotifyApi = new SpotifyWebApi({
 });
 
 // // Create the authorization URL
-const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
-console.log(authorizeURL);
+// const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
+// console.log(authorizeURL);
 
 
 
