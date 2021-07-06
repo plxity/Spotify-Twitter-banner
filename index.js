@@ -14,9 +14,9 @@ const twitterClient = new client.TwitterClient({
 
 //  API Creddentials setup
 const scopes = ['user-top-read'],
-  redirectUri = 'https://example.com/callback',
-  clientId = process.env.SPOTIFY_ID,
-  clientSecret = process.env.SPOTIFY_SECRET,
+  redirectUri = 'https://example.com/callback', // REDIRECT URL FOR CODE
+  clientId = process.env.SPOTIFY_ID, // YOUR SPOTIFY CLIENT ID
+  clientSecret = process.env.SPOTIFY_SECRET, // YOUR SPOTIFY CLIENT SECRET
   state = 'some-state-of-my-choice';
 
 // Setting up Spotify API
@@ -27,14 +27,13 @@ const spotifyApi = new SpotifyWebApi({
   clientSecret: clientSecret,
 });
 
-// // Create the authorization URL
+// Create the authorization URL and use the code in the query param of redirected URL as the 'SPOTIFY_CODE
 // const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 // console.log(authorizeURL);
 
 
 
 // Generating access token and refresh token and saving it for future use.
-
 const startSpotifySetup = () => {
   spotifyApi.authorizationCodeGrant(process.env.SPOTIFY_CODE).then(
     function (data) {
@@ -119,10 +118,14 @@ const getUsersTopTracks = () => {
 
 // Starting the Function call.
 startSpotifySetup();
+
+// Refresh Token in every 49 min
 setInterval(() => {
   refreshSpotifyToken();
 }, 1000 * 60 * 49);
 
+
+// Update twitter banner in 24 hours
 setInterval(() => {
   startSpotifySetup();
 }, 1000 * 60 * 60 * 24);
