@@ -4,55 +4,30 @@ const Jimp = require('jimp');
 const client = require('twitter-api-client');
 require('dotenv').config();
 
-//Twitter API setup
-const twitterClient = new client.TwitterClient({
-  apiKey: process.env.TWITTER_API_KEY, //YOUR CONSUMER API KEY
-  apiSecret: process.env.TWITTER_API_SECRET, //YOUR CONSUMER API SECRET
-  accessToken: process.env.TWITTER_ACCESS_TOKEN, //YOUR ACCESS TOKEN
-  accessTokenSecret: process.env.TWITTER_ACCESS_SECRET, //YOUR ACCESS TOKEN SECRET
-});
-
-//  API Creddentials setup
-const scopes = ['user-top-read'],
-  redirectUri = 'https://example.com/callback', // REDIRECT URL FOR CODE
-  clientId = process.env.SPOTIFY_ID, // YOUR SPOTIFY CLIENT ID
-  clientSecret = process.env.SPOTIFY_SECRET, // YOUR SPOTIFY CLIENT SECRET
-  state = 'some-state-of-my-choice';
-
 // Setting up Spotify API
-
-const spotifyApi = new SpotifyWebApi({
-  redirectUri: redirectUri,
-  clientId: clientId,
-  clientSecret: clientSecret,
-});
+// const spotifyApi = new SpotifyWebApi({
+//   redirectUri: redirectUri,
+//   clientId: clientId,
+//   clientSecret: clientSecret,
+// });
 
 // Create the authorization URL and use the code in the query param of redirected URL as the 'SPOTIFY_CODE
 // const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 // console.log(authorizeURL);
 
-
+// Setting Spotify access token and refresh token here -
+spotifyApi.setAccessToken(process.env.TWITTER_ACCESS_ID);
+spotifyApi.setRefreshToken(process.env.TWITTER_REFRESH_TOKEN);
 
 // Generating access token and refresh token and saving it for future use.
-const startSpotifySetup = () => {
-  spotifyApi.authorizationCodeGrant(process.env.SPOTIFY_CODE).then(
-    function (data) {
-      // Set the access token on the API object to use it in later calls
-      spotifyApi.setAccessToken(data.body['access_token']);
-      spotifyApi.setRefreshToken(data.body['refresh_token']);
-      getUsersTopTracks();
-    },
-    function (err) {
-      console.log('Something went wrong!', err);
-    }
-  );
+const startSpotifySetup = async () => {
+  await getUsersTopTracks();
 };
 
-// Refresh token function call
 const refreshSpotifyToken = () => {
   spotifyApi.refreshAccessToken().then(
     function (data) {
-      // Save the access token so that it's used in future calls
+      // Save the access token so that it will be used in future calls
       spotifyApi.setAccessToken(data.body['access_token']);
     },
     function (err) {
@@ -104,28 +79,29 @@ const writeOnImage = async (songsName = []) => {
     });
 };
 
-const getUsersTopTracks = () => {
-  spotifyApi.getMyTopTracks().then(
-    function (data) {
-      let topTracks = data.body.items.map((tracks) => tracks.name);
-      writeOnImage(topTracks);
-    },
-    function (err) {
-      console.log('Something went wrong!', err);
-    }
-  );
+const getUsersTopTracks = async () => {
+  return spotifyApi
+    .getMyTopTracks()
+    .then((data) => {
+      return data.body.items.map((tracks) => tracks.name);
+    })
+    .then((data) => {
+      writeOnImage(data);
+    })
+    .catch(() => {
+      console.log('something went wrong');
+    });
 };
 
 // Starting the Function call.
 startSpotifySetup();
 
-// Refresh Token in every 49 min
 setInterval(() => {
-  refreshSpotifyToken();
-}, 1000 * 60 * 49);
-
-
-// Update twitter banner in 24 hours
-setInterval(() => {
+  console.log('hello');
   startSpotifySetup();
 }, 1000 * 60 * 60 * 24);
+
+// Refresh Token in every 50 min
+setInterval(() => {
+  refreshSpotifyToken();
+}, 1000 * 60 * 50);
