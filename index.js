@@ -115,7 +115,6 @@ const getUsersTopTracks = async () => {
 startSpotifySetup();
 
 setInterval(() => {
-  console.log('hello');
   startSpotifySetup();
 }, 1000 * 60 * 60 * 24);
 
