@@ -5,6 +5,14 @@ const client = require('twitter-api-client');
 require('dotenv').config();
 
 //  API Creddentials setup
+
+const twitterClient = new client.TwitterClient({
+  apiKey: process.env.TWITTER_API_KEY, //YOUR CONSUMER API KEY
+  apiSecret: process.env.TWITTER_API_SECRET, //YOUR CONSUMER API SECRET
+  accessToken: process.env.TWITTER_ACCESS_TOKEN, //YOUR ACCESS TOKEN
+  accessTokenSecret: process.env.TWITTER_ACCESS_SECRET, //YOUR ACCESS TOKEN SECRET
+});
+
 const scopes = ['user-top-read'],
   redirectUri = 'https://example.com/callback', // REDIRECT URL FOR CODE
   clientId = process.env.SPOTIFY_ID, // YOUR SPOTIFY CLIENT ID
@@ -24,22 +32,10 @@ const spotifyApi = new SpotifyWebApi({
 // console.log(authorizeURL);
 
 // Setting Spotify access token and refresh token here -
-spotifyApi.setAccessToken(process.env.TWITTER_ACCESS_ID);
-spotifyApi.setRefreshToken(process.env.TWITTER_REFRESH_TOKEN);
+spotifyApi.setAccessToken(process.env.SPOTIFY_ACCESS);
+spotifyApi.setRefreshToken(process.env.SPOTIFY_REFRESH);
 
 // Code for generating access_token and refresh_token for the first time.
-// spotifyApi
-//   .authorizationCodeGrant(
-//     'AQCf3GczKQqOTkm1zPxEK6EWIw44cDTskfKPZEaQjaZVTqyqBbmIngaWTdhBgg61HX4jdp6YqTx0bFu8aYFvj2pJ_N9XXKg3M-zcGBBLa3I9yQTiHAOLYdhMvCFj7buYdp3qxUbbZLibxHmc5F7pZteAC5jTBdmjWZlnW4sYH7MSdpixmxpr2188Dr5FnFg'
-//   ) // generated after visiting the authorisedURL
-//   .then(
-//     function (data) {
-//       console.log(data);
-//     },
-//     function (err) {
-//       console.log('Something went wrong!', err);
-//     }
-//   );
 
 // Generating access token and refresh token and saving it for future use.
 const startSpotifySetup = async () => {
