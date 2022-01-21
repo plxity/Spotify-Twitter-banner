@@ -2,7 +2,9 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const fs = require('fs');
 const Jimp = require('jimp');
 const client = require('twitter-api-client');
-require('dotenv').config();
+const http = require('http');
+
+// require('dotenv').config();
 
 //  API Creddentials setup
 
@@ -31,7 +33,24 @@ const spotifyApi = new SpotifyWebApi({
 // const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 // console.log(authorizeURL);
 
+// spotifyApi.authorizationCodeGrant(code).then(
+//   function(data) {
+//     console.log(data)
+//     console.log('The token expires in ' + data.body['expires_in']);
+//     console.log('The access token is ' + data.body['access_token']);
+//     console.log('The refresh token is ' + data.body['refresh_token']);
+
+//     // Set the access token on the API object to use it in later calls
+//     spotifyApi.setAccessToken(data.body['access_token']);
+//     spotifyApi.setRefreshToken(data.body['refresh_token']);
+//   },
+//   function(err) {
+//     console.log('Something went wrong!', err);
+//   }
+// );
+
 // Setting Spotify access token and refresh token here -
+
 spotifyApi.setAccessToken(process.env.SPOTIFY_ACCESS);
 spotifyApi.setRefreshToken(process.env.SPOTIFY_REFRESH);
 
@@ -71,29 +90,39 @@ const writeOnImage = async (songsName = []) => {
       return Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
     })
     .then(function (font) {
+      let date = new Date();
+      let day = date.getDate();
+      let month = date.getMonth() + 1;
       loadedImage.print(font, 900, 50, `1. ${songsName[0]}`);
       loadedImage.print(font, 900, 130, `2. ${songsName[1]}`);
       loadedImage.print(font, 900, 210, `3. ${songsName[2]}`);
       loadedImage.print(font, 900, 290, `4. ${songsName[3]}`);
       loadedImage.print(font, 900, 370, `5. ${songsName[4]}`);
-
+      loadedImage.print(font, 1200, 460, `Last Updated: ${day}/${month}`);
       // Save image and upload on twitter
       loadedImage.write(path, async function () {
-        const base64 = await fs.readFileSync(path, { encoding: 'base64' });
-        // Update the banner
-        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({
-          banner: base64,
-        });
+        try {
+          const base64 = await fs.readFileSync(path, { encoding: 'base64' });
+          // Update the banner
+          await twitterClient.accountsAndUsers.accountUpdateProfileBanner({
+            banner: base64,
+          });
+        } catch (err) {
+          console.log(err);
+        }
       });
     })
     .catch(async function (err) {
-      const base64 = await fs.readFileSync('./MainImage.png', {
-        encoding: 'base64',
-      });
-      await twitterClient.accountsAndUsers.accountUpdateProfileBanner({
-        banner: base64,
-      });
-      console.error(err);
+      try {
+        const base64 = await fs.readFileSync('./MainImage.png', {
+          encoding: 'base64',
+        });
+        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({
+          banner: base64,
+        });
+      } catch (err) {
+        console.error(err);
+      }
     });
 };
 
@@ -122,3 +151,7 @@ setInterval(() => {
 setInterval(() => {
   refreshSpotifyToken();
 }, 1000 * 60 * 50);
+
+http.createServer().listen(process.env.PORT || 3000, () => {
+  console.log('Server at PORT 3000 started.');
+});
