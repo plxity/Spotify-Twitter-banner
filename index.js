@@ -31,21 +31,21 @@ const spotifyApi = new SpotifyWebApi({
 // const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 // console.log(authorizeURL);
 
-spotifyApi.authorizationCodeGrant(code).then(
-  function(data) {
-    console.log(data)
-    console.log('The token expires in ' + data.body['expires_in']);
-    console.log('The access token is ' + data.body['access_token']);
-    console.log('The refresh token is ' + data.body['refresh_token']);
+// spotifyApi.authorizationCodeGrant(code).then(
+//   function (data) {
+//     console.log(data);
+//     console.log('The token expires in ' + data.body['expires_in']);
+//     console.log('The access token is ' + data.body['access_token']);
+//     console.log('The refresh token is ' + data.body['refresh_token']);
 
-    // Set the access token on the API object to use it in later calls
-    spotifyApi.setAccessToken(data.body['access_token']);
-    spotifyApi.setRefreshToken(data.body['refresh_token']);
-  },
-  function(err) {
-    console.log('Something went wrong!', err);
-  }
-);
+//     // Set the access token on the API object to use it in later calls
+//     spotifyApi.setAccessToken(data.body['access_token']);
+//     spotifyApi.setRefreshToken(data.body['refresh_token']);
+//   },
+//   function (err) {
+//     console.log('Something went wrong!', err);
+//   }
+// );
 
 // Setting Spotify access token and refresh token here -
 
@@ -64,6 +64,8 @@ const refreshSpotifyToken = () => {
     function (data) {
       // Save the access token so that it will be used in future calls
       spotifyApi.setAccessToken(data.body['access_token']);
+      data?.body['refresh_token'] &&
+        spotifyApi.setRefreshToken(data.body['access_token']);
     },
     function (err) {
       console.log('Could not refresh access token', err);
@@ -73,6 +75,7 @@ const refreshSpotifyToken = () => {
 // Function to write on image (Top played songs)
 
 let updateCount = 1;
+let refCount = 1;
 const writeOnImage = async (songsName = []) => {
   const path = './EditedImage.png';
   try {
@@ -98,6 +101,7 @@ const writeOnImage = async (songsName = []) => {
       loadedImage.print(font, 900, 290, `4. ${songsName[3]}`);
       loadedImage.print(font, 900, 370, `5. ${songsName[4]}`);
       loadedImage.print(font, 1200, 420, `UC: ${updateCount++}`);
+      loadedImage.print(font, 1300, 420, `RC: ${refCount++}`);
       loadedImage.print(font, 1200, 460, `Last Updated: ${day}/${month}`);
       // Save image and upload on twitter
       loadedImage.write(path, async function () {
@@ -151,12 +155,13 @@ setInterval(() => {
 // Reset updateCount in 24 hours
 setInterval(() => {
   updateCount = 0;
+  refCount = 0;
 }, 86400000);
 
-// Refresh Token in every 20 min
+// Refresh Token in every 25 min
 setInterval(() => {
   refreshSpotifyToken();
-}, 1200000);
+}, 1500000);
 
 http.createServer().listen(process.env.PORT || 3000, () => {
   console.log('Server at PORT 3000 started.');
