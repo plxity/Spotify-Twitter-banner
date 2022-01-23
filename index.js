@@ -64,7 +64,7 @@ const refreshSpotifyToken = () => {
     function (data) {
       // Save the access token so that it will be used in future calls
       spotifyApi.setAccessToken(data.body['access_token']);
-      data?.body['refresh_token'] &&
+      Boolean(data?.body['refresh_token']) &&
         spotifyApi.setRefreshToken(data.body['refresh_token']);
     },
     function (err) {
