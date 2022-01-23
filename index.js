@@ -72,7 +72,7 @@ const refreshSpotifyToken = () => {
 };
 // Function to write on image (Top played songs)
 
-let updateCount = 0;
+let updateCount = 1;
 const writeOnImage = async (songsName = []) => {
   const path = './EditedImage.png';
   try {
