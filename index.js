@@ -65,7 +65,7 @@ const refreshSpotifyToken = () => {
       // Save the access token so that it will be used in future calls
       spotifyApi.setAccessToken(data.body['access_token']);
       data?.body['refresh_token'] &&
-        spotifyApi.setRefreshToken(data.body['access_token']);
+        spotifyApi.setRefreshToken(data.body['refresh_token']);
     },
     function (err) {
       console.log('Could not refresh access token', err);
@@ -74,8 +74,8 @@ const refreshSpotifyToken = () => {
 };
 // Function to write on image (Top played songs)
 
-let updateCount = 1;
-let refCount = 1;
+let updateCount = 0;
+let refCount = 0;
 const writeOnImage = async (songsName = []) => {
   const path = './EditedImage.png';
   try {
