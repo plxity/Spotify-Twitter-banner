@@ -3,8 +3,7 @@ const fs = require('fs');
 const Jimp = require('jimp');
 const client = require('twitter-api-client');
 const http = require('http');
-
-// require('dotenv').config();
+require('dotenv').config();
 
 //  API Creddentials setup
 
@@ -22,7 +21,6 @@ const scopes = ['user-top-read'],
   state = 'some-state-of-my-choice';
 
 // Setting up Spotify API
-
 const spotifyApi = new SpotifyWebApi({
   redirectUri: redirectUri,
   clientId: clientId,
@@ -33,26 +31,26 @@ const spotifyApi = new SpotifyWebApi({
 // const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 // console.log(authorizeURL);
 
-// spotifyApi.authorizationCodeGrant(code).then(
-//   function(data) {
-//     console.log(data)
-//     console.log('The token expires in ' + data.body['expires_in']);
-//     console.log('The access token is ' + data.body['access_token']);
-//     console.log('The refresh token is ' + data.body['refresh_token']);
+spotifyApi.authorizationCodeGrant(code).then(
+  function(data) {
+    console.log(data)
+    console.log('The token expires in ' + data.body['expires_in']);
+    console.log('The access token is ' + data.body['access_token']);
+    console.log('The refresh token is ' + data.body['refresh_token']);
 
-//     // Set the access token on the API object to use it in later calls
-//     spotifyApi.setAccessToken(data.body['access_token']);
-//     spotifyApi.setRefreshToken(data.body['refresh_token']);
-//   },
-//   function(err) {
-//     console.log('Something went wrong!', err);
-//   }
-// );
+    // Set the access token on the API object to use it in later calls
+    spotifyApi.setAccessToken(data.body['access_token']);
+    spotifyApi.setRefreshToken(data.body['refresh_token']);
+  },
+  function(err) {
+    console.log('Something went wrong!', err);
+  }
+);
 
 // Setting Spotify access token and refresh token here -
 
-spotifyApi.setAccessToken(process.env.SPOTIFY_ACCESS);
-spotifyApi.setRefreshToken(process.env.SPOTIFY_REFRESH);
+// spotifyApi.setAccessToken(process.env.SPOTIFY_ACCESS);
+// spotifyApi.setRefreshToken(process.env.SPOTIFY_REFRESH);
 
 // Code for generating access_token and refresh_token for the first time.
 
@@ -72,8 +70,9 @@ const refreshSpotifyToken = () => {
     }
   );
 };
-
 // Function to write on image (Top played songs)
+
+let updateCount = 0;
 const writeOnImage = async (songsName = []) => {
   const path = './EditedImage.png';
   try {
@@ -98,6 +97,7 @@ const writeOnImage = async (songsName = []) => {
       loadedImage.print(font, 900, 210, `3. ${songsName[2]}`);
       loadedImage.print(font, 900, 290, `4. ${songsName[3]}`);
       loadedImage.print(font, 900, 370, `5. ${songsName[4]}`);
+      loadedImage.print(font, 1200, 420, `UC: ${updateCount++}`);
       loadedImage.print(font, 1200, 460, `Last Updated: ${day}/${month}`);
       // Save image and upload on twitter
       loadedImage.write(path, async function () {
@@ -135,22 +135,28 @@ const getUsersTopTracks = async () => {
     .then((data) => {
       writeOnImage(data);
     })
-    .catch(() => {
-      console.log('something went wrong');
+    .catch((err) => {
+      console.log('something went wrong', err);
     });
 };
 
 // Starting the Function call.
 startSpotifySetup();
 
+// Update in 2 hours
 setInterval(() => {
   startSpotifySetup();
-}, 1000 * 60 * 60 * 24);
+}, 7200000);
 
-// Refresh Token in every 50 min
+// Reset updateCount in 24 hours
+setInterval(() => {
+  updateCount = 0;
+}, 86400000);
+
+// Refresh Token in every 20 min
 setInterval(() => {
   refreshSpotifyToken();
-}, 1000 * 60 * 50);
+}, 1200000);
 
 http.createServer().listen(process.env.PORT || 3000, () => {
   console.log('Server at PORT 3000 started.');
