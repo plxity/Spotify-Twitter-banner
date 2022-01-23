@@ -49,8 +49,8 @@ const spotifyApi = new SpotifyWebApi({
 
 // Setting Spotify access token and refresh token here -
 
-// spotifyApi.setAccessToken(process.env.SPOTIFY_ACCESS);
-// spotifyApi.setRefreshToken(process.env.SPOTIFY_REFRESH);
+spotifyApi.setAccessToken(process.env.SPOTIFY_ACCESS);
+spotifyApi.setRefreshToken(process.env.SPOTIFY_REFRESH);
 
 // Code for generating access_token and refresh_token for the first time.
 
